@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+echo "[husky] Running fast checks…"
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm run -s test -- --passWithNoTests
+else
+  echo "[husky] pnpm not found; skipping JS tests"
+fi
+# Ensure TODO updates are noticed but do not fail commit automatically
+if ! git diff --quiet -- docs/TODO.md; then
+  echo "[husky] docs/TODO.md changed in this commit."
+fi

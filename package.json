@@ -1,0 +1,14 @@
+{
+  "name": "project",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --reporter=dot",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.4",
+    "husky": "^9.1.4",
+    "vitest": "^2.1.9"
+  }
+}
