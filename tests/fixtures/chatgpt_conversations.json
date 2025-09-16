@@ -1,0 +1,41 @@
+[
+  {
+    "id": "chatgpt-123",
+    "title": "Planning session",
+    "create_time": 1710000000,
+    "update_time": 1710000300,
+    "mapping": {
+      "root": {"id": "root", "children": ["u1"]},
+      "u1": {
+        "id": "u1",
+        "message": {
+          "id": "msg-user",
+          "author": {"role": "user"},
+          "create_time": 1710000005,
+          "content": {"content_type": "text", "parts": ["Hello ChatGPT, can you help plan?"]}
+        },
+        "children": ["a1"]
+      },
+      "a1": {
+        "id": "a1",
+        "message": {
+          "id": "msg-assistant",
+          "author": {"role": "assistant"},
+          "create_time": 1710000010,
+          "content": {"content_type": "text", "parts": ["Absolutely! Let's build a checklist."]},
+          "metadata": {
+            "attachments": [
+              {
+                "filename": "notes.md",
+                "mimeType": "text/markdown",
+                "extract": "- [ ] draft requirements"
+              }
+            ]
+          }
+        },
+        "children": []
+      }
+    },
+    "current_node_summary": "Assistant proposes checklist"
+  }
+]
