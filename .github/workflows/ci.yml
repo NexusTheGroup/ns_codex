@@ -11,7 +11,7 @@ jobs:
       - name: Python tests
         uses: actions/setup-python@v5
         with: { python-version: "3.11" }
-      - run: python -m venv .venv && . .venv/bin/activate && pip install -U pip pytest && pytest -q tests/python
+      - run: python -m venv .venv && . .venv/bin/activate && pip install -U pip pytest psycopg2 && pytest -q tests/python
         shell: bash
 
       - name: Node tests
