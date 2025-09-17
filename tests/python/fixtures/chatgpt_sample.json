@@ -1,0 +1,35 @@
+{
+  "format": "chatgpt",
+  "conversations": [
+    {
+      "id": "chatcmpl-001",
+      "title": "Normalization happy path",
+      "create_time": "2024-03-01T10:00:00Z",
+      "update_time": "2024-03-01T10:05:00Z",
+      "messages": [
+        {
+          "id": "msg-001",
+          "author": {"role": "user"},
+          "content": {"parts": ["Hello Claude via ChatGPT export"]},
+          "timestamp": "2024-03-01T10:00:00Z"
+        },
+        {
+          "id": "msg-002",
+          "author": {"role": "assistant"},
+          "content": {"text": "Here is the snippet you asked for."},
+          "timestamp": "2024-03-01T10:01:00Z",
+          "content_type": "text",
+          "attachments": [
+            {
+              "filename": "notes.txt",
+              "mime_type": "text/plain",
+              "data": "SGVsbG8sIENvZGV4IQ==",
+              "extracted_text": "Hello, Codex!",
+              "metadata": {"generator": "assistant"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
