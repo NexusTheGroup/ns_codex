@@ -7,12 +7,12 @@ if command -v uv >/dev/null 2>&1; then
   echo "[setup] Using uv for Python env"
   uv venv .venv
   . .venv/bin/activate
-  uv pip install --upgrade pip pytest
+  uv pip install --upgrade pip pytest psycopg2-binary pgvector
 else
   echo "[setup] Using python -m venv"
   python3 -m venv .venv
   . .venv/bin/activate
-  pip install --upgrade pip pytest
+  pip install --upgrade pip pytest psycopg2-binary pgvector
 fi
 
 # Node

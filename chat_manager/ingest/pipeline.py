@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path
-from typing import Iterable, Iterator, List
+from typing import Any, Iterable, Iterator, List
 
 from ..db import ChatDatabase
 from ..models import NormalizedImport, NormalizedThread
@@ -28,7 +28,7 @@ class ImportConfig:
 
 @dataclass(slots=True)
 class ImportResult:
-    job_id: str
+    job_id: uuid.UUID
     files_processed: int
     files_skipped: int
     threads_created: int
@@ -57,15 +57,17 @@ class ImportPipeline:
 
     def ingest(self, sources: Iterable[Path | str], config: ImportConfig) -> ImportResult:
         payloads = list(self._load_sources(sources))
+        files_total = len(payloads)
+        job_scope = {"files_total": files_total, "files_processed": 0}
         job = self.db.create_job(
-            (config.platform_hint.value if config.platform_hint else "auto"),
-            len(payloads),
+            job_type=(config.platform_hint.value if config.platform_hint else "import"),
+            scope=job_scope,
         )
 
         processed = skipped = threads_created = messages_created = attachments_saved = 0
         errors: List[str] = []
 
-        for payload in payloads:
+        for i, payload in enumerate(payloads):
             content_hash = sha256(payload.raw).hexdigest()
             try:
                 fmt = config.platform_hint or detect_format(payload.data)
@@ -76,20 +78,13 @@ class ImportPipeline:
                 else:
                     continue
 
-            recorded = self.db.record_import_file(
-                job.id,
-                content_hash=content_hash,
-                source_path=payload.source,
-                detected_format=fmt.value,
-            )
-            if not recorded:
+            if self.db.is_file_hash_present(content_hash):
                 skipped += 1
-                self.db.update_job_progress(job.id, files_processed=processed + skipped)
                 continue
 
             try:
                 normalized = self._normalize(fmt, payload.data)
-            except Exception as exc:  # noqa: BLE001 - bubble up to caller optionally
+            except Exception as exc:  # noqa: BLE001
                 errors.append(f"{payload.source}: {exc}")
                 if not config.allow_partial:
                     break
@@ -98,13 +93,24 @@ class ImportPipeline:
 
             processed += 1
             stats = self._persist(normalized)
+            self.db.record_imported_file(
+                job.id, content_hash, payload.source, fmt.value
+            )
             threads_created += stats[0]
             messages_created += stats[1]
             attachments_saved += stats[2]
-            self.db.update_job_progress(job.id, files_processed=processed + skipped)
+
+            progress_percent = ((i + 1) / files_total) * 100
+            job_scope["files_processed"] = processed + skipped
+            self.db.update_job_progress(
+                job.id,
+                progress_percent=progress_percent,
+                scope=job_scope
+            )
 
         final_status = "completed" if not errors else ("failed" if processed == 0 else "completed_with_warnings")
         self.db.update_job_progress(job.id, status=final_status, error_messages=errors)
+
         return ImportResult(
             job_id=job.id,
             files_processed=processed,
@@ -131,7 +137,14 @@ class ImportPipeline:
             attachment_count += self._persist_thread(platform_id, thread)
         return thread_count, message_count, attachment_count
 
-    def _persist_thread(self, platform_id: str, thread: NormalizedThread) -> int:
+    def _persist_thread(self, platform_id: uuid.UUID, thread: NormalizedThread) -> int:
+        # Check for duplicate threads before inserting
+        existing_thread_id = self.db.get_thread_by_external_id(
+            platform_id, thread.external_id
+        )
+        if existing_thread_id:
+            return 0  # Skip this thread
+
         created_at = self._format_datetime(thread.created_at)
         updated_at = self._format_datetime(thread.updated_at)
         thread_id = self.db.insert_thread(
@@ -147,7 +160,6 @@ class ImportPipeline:
         for sequence, message in enumerate(thread.messages, start=1):
             message_id = self.db.insert_message(
                 thread_id=thread_id,
-                external_id=message.external_id,
                 role=message.role,
                 content=message.content,
                 content_type=message.content_type,
@@ -208,4 +220,3 @@ class ImportPipeline:
         if value.tzinfo is None:
             value = value.replace(tzinfo=timezone.utc)
         return value.astimezone(timezone.utc).strftime(TIMESTAMP_FORMAT)
-
