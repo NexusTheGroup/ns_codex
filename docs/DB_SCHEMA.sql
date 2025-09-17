@@ -58,18 +58,15 @@ CREATE INDEX messages_thread_ts_idx ON messages(thread_id, timestamp);
 CREATE INDEX messages_content_fts_idx ON messages USING GIN (to_tsvector('english', content));
 
 CREATE TABLE attachments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    content_hash TEXT PRIMARY KEY,
     message_id UUID NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
     filename TEXT NOT NULL,
     mime_type TEXT NOT NULL,
     file_size BIGINT NOT NULL CHECK (file_size >= 0),
-    content_hash TEXT NOT NULL,
     storage_path TEXT NOT NULL,
     extracted_text TEXT,
     metadata JSONB DEFAULT '{}'::JSONB
 );
-
-CREATE UNIQUE INDEX attachments_hash_idx ON attachments(content_hash);
 CREATE INDEX attachments_message_idx ON attachments(message_id);
 CREATE INDEX attachments_metadata_gin_idx ON attachments USING GIN (metadata);
 
@@ -135,7 +132,7 @@ CREATE TABLE embeddings (
     content_type embedding_content_type NOT NULL,
     message_id UUID REFERENCES messages(id) ON DELETE CASCADE,
     thread_id UUID REFERENCES threads(id) ON DELETE CASCADE,
-    attachment_id UUID REFERENCES attachments(id) ON DELETE CASCADE,
+    attachment_id TEXT REFERENCES attachments(content_hash) ON DELETE CASCADE,
     vector vector(1024) NOT NULL,
     model_name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -210,14 +207,22 @@ CREATE TABLE job_artifacts (
     PRIMARY KEY (job_id, artifact_type)
 );
 
+CREATE TABLE imported_files (
+    content_hash TEXT PRIMARY KEY,
+    job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    source_path TEXT NOT NULL,
+    detected_format TEXT NOT NULL,
+    imported_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Maintenance triggers
 CREATE OR REPLACE FUNCTION touch_updated_at()
-RETURNS TRIGGER AS 44867
+RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = now();
     RETURN NEW;
 END;
-44867 LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER threads_touch_updated
 BEFORE UPDATE ON threads

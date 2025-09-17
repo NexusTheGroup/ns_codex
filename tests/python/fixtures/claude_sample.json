@@ -1,0 +1,36 @@
+{
+  "type": "claude-export",
+  "meta": {"vendor": "Anthropic"},
+  "conversations": [
+    {
+      "uuid": "conv-abc",
+      "name": "Claude ingestion",
+      "created_at": "2024-04-01T09:00:00Z",
+      "updated_at": "2024-04-01T09:10:00Z",
+      "messages": [
+        {
+          "id": "claude-msg-1",
+          "role": "user",
+          "text": "Hi Claude, can you summarize?",
+          "timestamp": "2024-04-01T09:00:00Z"
+        },
+        {
+          "id": "claude-msg-2",
+          "role": "assistant",
+          "text": "Absolutely, attaching a quick summary diagram.",
+          "timestamp": "2024-04-01T09:02:00Z",
+          "attachments": [
+            {
+              "name": "summary.png",
+              "mime_type": "image/png",
+              "base64": "U1RBQy1DT0RFWC1QSUNU",
+              "extracted_text": null,
+              "width": 400,
+              "height": 200
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

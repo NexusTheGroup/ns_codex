@@ -8,11 +8,12 @@ Live task list maintained per AGENTS.md.
 - [x] Produce P0 planning deliverables (docs/BUILD_PLAN.md, TEST_MATRIX.md, API_SURFACE.md, DB_SCHEMA.sql).
 - [ ] Normalize blueprint.md into readable multi-line format before editing.
 - [x] Flesh out docs/ENV.md with real variable definitions and align .env.example when ready.
-- [ ] Draft docs/CHANGELOG.md with Release Notes section framework.
+- [x] Draft docs/CHANGELOG.md with Release Notes section framework. (initial file added in P1)
 - [ ] Establish SECURITY.md and initial risk register before implementation.
 
 ## Discovery Follow-Ups
-- [ ] Expand test suite beyond sanity checks once features exist.
+- [ ] Stand up PostgreSQL migration tooling (Alembic) mirroring sqlite schema from P1.
+- [x] Expand test suite beyond sanity checks once features exist. (ingestion pytest coverage added)
 - [ ] Define scripts/setup.sh parity for uv and pnpm lock usage (ensure deterministic installs).
 - [ ] Outline CI enhancements (linting, smoke, future eval runners).
 - [ ] Evaluate adding PR body validation step to enforce template attestations (optional guardrail).

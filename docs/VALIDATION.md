@@ -1,18 +1,18 @@
 # Documentation Validation
 
-Summary of gaps or contradictions discovered during repository scan.
+Summary of gaps or contradictions discovered during repository scan. Update this file whenever guardrails reveal issues that
+still need resolution.
 
-## Missing Artifacts
-- Branch protection rules enforcing required checks/reviews (configure in GitHub UI).
-- docs/BUILD_PLAN.md, docs/TEST_MATRIX.md, docs/API_SURFACE.md, docs/DB_SCHEMA.sql (required by AGENTS.md Phase P0).
-- SECURITY.md (referenced in PROMPTS.md for later phases).
-- docs/CHANGELOG.md Release Notes section (global acceptance requires it).
-- Detailed environment notes in docs/ENV.md (currently placeholder).
+## Outstanding Artifacts
+- `SECURITY.md` and initial risk register remain todo (see docs/TODO.md).
+- PostgreSQL/pgvector migration workflow (Alembic) still pending; current implementation relies on SQLite helper.
+- Blueprint formatting is still single-line, complicating diff reviews; normalization task remains open.
 
-## Inconsistencies
-- blueprint.md stored as a single physical line, making diffs and paragraph references difficult.
-- scripts/setup.sh writes .env.example but docs/ENV.md lacks matching explanations.
+## Alignment Notes
+- P0 deliverables (BUILD_PLAN, TEST_MATRIX, API_SURFACE, DB_SCHEMA) now live in `docs/` as required.
+- Environment documentation and `.env.example` are synchronized with the ingestion pipeline defaults.
+- docs/CHANGELOG.md includes Release Notes tracking for ongoing phases.
 
 ## Checks Performed
-- All markdown files enumerated (58) and docs markdown subset (1 prior to this run) reviewed.
-- Configs (package.json, pnpm-lock.yaml, pyproject.toml), CI workflow, scripts, and sanity tests inspected.
+- Reviewed markdown/doc set after P1 ingestion work.
+- Verified CI workflow still executes pytest and pnpm tests; smoke script exercises new ingestion tests.
